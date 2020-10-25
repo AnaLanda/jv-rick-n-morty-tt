@@ -7,10 +7,4 @@ public interface CartoonCharacterService {
     CartoonCharacter getRandom();
 
     List<CartoonCharacter> getByNameFragment(String fragment);
-
-    List<CartoonCharacter> getAllFromApi(String url);
-
-    List<CartoonCharacter> addAll(List<CartoonCharacter> cartoonCharacters);
-
-    List<CartoonCharacter> updateAll(List<CartoonCharacter> cartoonCharacters);
 }

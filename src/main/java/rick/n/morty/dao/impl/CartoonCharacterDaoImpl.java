@@ -21,14 +21,14 @@ public class CartoonCharacterDaoImpl implements CartoonCharacterDao {
     }
 
     @Override
-    public CartoonCharacter addCartoonCharacter(CartoonCharacter cartoonCharacter) {
+    public CartoonCharacter add(CartoonCharacter cartoonCharacter) {
         Transaction transaction = null;
         Session session = null;
         log.info("Trying to add the character " + cartoonCharacter + " to the DB.");
         try {
             session = sessionFactory.openSession();
             transaction = session.beginTransaction();
-            session.save(cartoonCharacter);
+            session.persist(cartoonCharacter);
             transaction.commit();
             log.info("Successfully added the cartoon character "
                     + cartoonCharacter + " to the DB.");
@@ -51,7 +51,7 @@ public class CartoonCharacterDaoImpl implements CartoonCharacterDao {
         log.info("Trying to add characters to the DB.");
         List<CartoonCharacter> addedCartoonCharacters = new ArrayList<>();
         for (CartoonCharacter cartoonCharacter : cartoonCharacters) {
-            addedCartoonCharacters.add(addCartoonCharacter(cartoonCharacter));
+            addedCartoonCharacters.add(add(cartoonCharacter));
         }
         log.info("Successfully added all characters to the DB.");
         return addedCartoonCharacters;
@@ -61,10 +61,11 @@ public class CartoonCharacterDaoImpl implements CartoonCharacterDao {
     public CartoonCharacter getRandom() {
         log.info("Trying to get a random character");
         try (Session session = sessionFactory.openSession()) {
-            Query<CartoonCharacter> query = session.createQuery("SELECT c FROM CartoonCharacter c "
+            Query<CartoonCharacter> query = session.createQuery(
+                    "SELECT DISTINCT c FROM CartoonCharacter c "
                     + "JOIN FETCH  c.location "
                     + "JOIN FETCH c.origin "
-                    + "JOIN FETCH c.episode "
+                    + "JOIN FETCH c.episodes "
                     + "ORDER BY RAND()", CartoonCharacter.class);
             return query.setMaxResults(1).getSingleResult();
         } catch (Exception e) {
@@ -73,19 +74,60 @@ public class CartoonCharacterDaoImpl implements CartoonCharacterDao {
     }
 
     @Override
-    public List<CartoonCharacter> getByNameFragment(String fragment) {
-        log.info("Trying to get any characters whose name contains " + fragment);
+    public List<CartoonCharacter> getAll() {
+        log.info("Trying to get all characters...");
         try (Session session = sessionFactory.openSession()) {
-            Query<CartoonCharacter> query = session.createQuery("SELECT c FROM CartoonCharacter c "
+            Query<CartoonCharacter> getAllCharactersQuery = session.createQuery(
+                    "SELECT DISTINCT c FROM CartoonCharacter c "
+                    + "JOIN FETCH c.location "
+                    + "JOIN FETCH c.origin "
+                    + "JOIN FETCH c.episodes", CartoonCharacter.class);
+            return getAllCharactersQuery.getResultList();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get all characters from the DB.", e);
+        }
+    }
+
+    @Override
+    public List<CartoonCharacter> getByNameFragment(String fragment) {
+        log.info("Trying to get characters whose name contains " + fragment);
+        try (Session session = sessionFactory.openSession()) {
+            Query<CartoonCharacter> query = session.createQuery(
+                    "SELECT DISTINCT c FROM CartoonCharacter c "
                     + "JOIN FETCH c.location "
                     + "JOIN FETCH  c.origin "
-                    + "JOIN FETCH c.episode "
+                    + "JOIN FETCH c.episodes "
                     + "WHERE c.name LIKE :name", CartoonCharacter.class);
             query.setParameter("name", "%" + fragment + "%");
             return query.getResultList();
         } catch (Exception e) {
             throw new RuntimeException("Failed to get any characters whose name contains "
                     + fragment, e);
+        }
+    }
+
+    @Override
+    public void remove(CartoonCharacter cartoonCharacter) {
+        Transaction transaction = null;
+        Session session = null;
+        log.info("Trying to remove the character " + cartoonCharacter + " to the DB.");
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+            session.remove(cartoonCharacter);
+            transaction.commit();
+            log.info("Successfully removed the cartoon character "
+                    + cartoonCharacter + " to the DB.");
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Failed to remove the cartoon character "
+                    + cartoonCharacter + " to the DB.", e);
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
 }

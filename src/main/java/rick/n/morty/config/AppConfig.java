@@ -9,9 +9,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @PropertySource("classpath:db.properties")
+@EnableScheduling
 @ComponentScan(basePackages = {
         "rick.n.morty.dao",
         "rick.n.morty.mapper",

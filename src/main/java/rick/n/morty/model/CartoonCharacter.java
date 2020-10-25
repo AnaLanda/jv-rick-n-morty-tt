@@ -2,12 +2,11 @@ package rick.n.morty.model;
 
 import java.util.List;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Data;
@@ -24,14 +23,13 @@ public class CartoonCharacter {
     private String species;
     private String type;
     private String gender;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Origin origin;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private Location location;
     private String imageUrl;
-    @ElementCollection
-    @CollectionTable(name = "episodes")
-    private List<String> episode;
+    @ManyToMany(cascade = CascadeType.PERSIST)
+    private List<Episode> episodes;
     private String url;
     private String created;
 }
