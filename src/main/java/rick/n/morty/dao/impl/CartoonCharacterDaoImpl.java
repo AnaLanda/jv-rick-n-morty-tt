@@ -9,6 +9,7 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import rick.n.morty.dao.CartoonCharacterDao;
+import rick.n.morty.exception.DataProcessingException;
 import rick.n.morty.model.CartoonCharacter;
 
 @Repository
@@ -37,7 +38,7 @@ public class CartoonCharacterDaoImpl implements CartoonCharacterDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new RuntimeException("Failed to add the cartoon character "
+            throw new DataProcessingException("Failed to add the cartoon character "
                     + cartoonCharacter + " to the DB.", e);
         } finally {
             if (session != null) {
@@ -69,7 +70,7 @@ public class CartoonCharacterDaoImpl implements CartoonCharacterDao {
                     + "ORDER BY RAND()", CartoonCharacter.class);
             return query.setMaxResults(1).getSingleResult();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get a random character");
+            throw new DataProcessingException("Failed to get a random character", e);
         }
     }
 
@@ -84,7 +85,7 @@ public class CartoonCharacterDaoImpl implements CartoonCharacterDao {
                     + "JOIN FETCH c.episodes", CartoonCharacter.class);
             return getAllCharactersQuery.getResultList();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get all characters from the DB.", e);
+            throw new DataProcessingException("Failed to get all characters from the DB.", e);
         }
     }
 
@@ -101,7 +102,7 @@ public class CartoonCharacterDaoImpl implements CartoonCharacterDao {
             query.setParameter("name", "%" + fragment + "%");
             return query.getResultList();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get any characters whose name contains "
+            throw new DataProcessingException("Failed to get any characters whose name contains "
                     + fragment, e);
         }
     }
@@ -122,7 +123,7 @@ public class CartoonCharacterDaoImpl implements CartoonCharacterDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new RuntimeException("Failed to remove the cartoon character "
+            throw new DataProcessingException("Failed to remove the cartoon character "
                     + cartoonCharacter + " to the DB.", e);
         } finally {
             if (session != null) {

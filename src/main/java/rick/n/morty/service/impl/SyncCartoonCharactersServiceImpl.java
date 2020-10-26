@@ -32,7 +32,7 @@ public class SyncCartoonCharactersServiceImpl implements SyncService {
     }
 
     @Override
-    @Scheduled(cron = "0 */2 * * * *")
+    @Scheduled(cron = "0 */1 * * * *")
     public void syncData() {
         log.info("Trying to sync API and DB character data.");
         updateData(fetchData(URL));
